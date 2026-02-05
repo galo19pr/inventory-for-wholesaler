@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2 class="mb-4">📊 Monitor Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-start border-4 border-danger">
+                    <div class="card-header bg-white fw-bold text-danger">⚠️ Low Stock (< 50)</div>
+                    <ul class="list-group list-group-flush">
+                        {% for item in low_stock %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            {{ item.name }} <span class="badge bg-danger rounded-pill">{{ item.quantity }} Left</span>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-muted">All stocks levels are healthy.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-start border-4 border-warning">
+                    <div class="card-header bg-white fw-bold text-warning">⏳ Expiring Soon (6 Months)</div>
+                    <ul class="list-group list-group-flush">
+                        {% for item in expiring %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            {{ item.name }} <small class="text-muted">{{ item.expiry_date }}</small>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-muted">No items expiring soon.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-start border-4 border-success">
+            <div class="card-header bg-white fw-bold text-success">🔥 Top Selling Items</div>
+            <div class="card-body">
+                {% if trends %}
+                    {% for name, total in trends %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between"><span>{{ name }}</span> <span>{{ total }} sold</span></div>
+                        <div class="progress" style="height: 8px;"><div class="progress-bar bg-success" style="width: {{ total * 2 }}%"></div></div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mt-4">No sales data recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>📦 Inventory & Sales</h2>
+            <div class="bg-white p-2 rounded shadow-sm border">
+                <small class="text-muted d-block">TOTAL WAREHOUSE VALUE</small>
+                <span class="fw-bold text-primary fs-5">${{ "{:,.2f}".format(total_val) }}</span>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white" data-bs-toggle="collapse" data-bs-target="#addForm" style="cursor: pointer;">
+                <span>+ Register New Stock Item (Click to Open)</span>
+            </div>
+            <div id="addForm" class="collapse">
+                <div class="card-body">
+                    <form action="/register" method="POST" class="row g-2">
+                        <div class="col-md-4"><input type="text" name="name" class="form-control" placeholder="Product Name" required></div>
+                        <div class="col-md-3"><input type="text" name="batch_number" class="form-control" placeholder="Batch No." required></div>
+                        <div class="col-md-3"><input type="date" name="expiry_date" class="form-control" required></div>
+                        <div class="col-md-2"><input type="number" name="quantity" class="form-control" placeholder="Qty" required></div>
+                        <div class="col-md-3"><input type="number" step="0.01" name="unit_price" class="form-control" placeholder="Price" required></div>
+                        <div class="col-md-3"><input type="text" name="unit" class="form-control" placeholder="Unit (e.g. Box)"></div>
+                        <div class="col-md-6"><button class="btn btn-success w-100">Add to Database</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <form class="d-flex mb-3">
+            <input type="text" name="search" class="form-control me-2" placeholder="Search by name or batch..." value="{{ search }}">
+            <button class="btn btn-secondary">Search</button>
+        </form>
+
+        <div class="card">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr><th>Name</th><th>Batch</th><th>Expiry</th><th>Stock</th><th>Price</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td class="fw-bold">{{ item.name }}</td>
+                        <td><small class="text-muted">{{ item.batch_number }}</small></td>
+                        <td>{{ item.expiry_date }}</td>
+                        <td>
+                            {{ item.quantity }} {{ item.unit }}
+                            {% if item.quantity < 50 %}<span class="badge bg-danger rounded-pill">Low</span>{% endif %}
+                        </td>
+                        <td>${{ item.unit_price }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/add_to_cart/{{ item.id }}" class="btn btn-sm btn-outline-primary">+ Add to Cart</a>
+                                <a href="/delete/{{ item.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-primary text-white">🛒 Sales Cart</div>
+            <div class="card-body">
+                {% if cart %}
+                    <ul class="list-group mb-3">
+                        {% for item in cart %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.name }} <span class="fw-bold">${{ item.price }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <form action="/checkout" method="POST">
+                        <button class="btn btn-success w-100 py-2">Checkout (Process Sale)</button>
+                    </form>
+                    <div class="text-center mt-2"><a href="/clear_cart" class="text-danger small text-decoration-none">Clear Cart</a></div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <h5>Cart is Empty</h5>
+                        <p class="small">Click "+ Add to Cart" on items to create a sale.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
